@@ -8,10 +8,16 @@ const {
   getAllConsultorios,
   getNivelesEscolares,
   getOcupaciones,
+  createOcupacion,
+  updateOcupacion,
+  deleteOcupacion,
   getGruposDispensariales,
   getSexos,
+  getColoresPiel,
   getAreasGeograficas,
-  createAreaGeografica
+  createAreaGeografica,
+  updateAreaGeografica,
+  deleteAreaGeografica
 } = require('../controllers/catalogosController');
 const authenticateToken = require('../middleware/auth');
 
@@ -22,12 +28,22 @@ router.get('/policlinicos/:municipioId', getPoliclinicos);
 router.get('/consultorios/:policlinicoId', getConsultorios);
 router.get('/consultorios', getAllConsultorios);
 
-// Rutas protegidas
+// Rutas protegidas - Catálogos de solo lectura
 router.get('/niveles-escolares', authenticateToken, getNivelesEscolares);
-router.get('/ocupaciones', authenticateToken, getOcupaciones);
 router.get('/grupos-dispensariales', authenticateToken, getGruposDispensariales);
 router.get('/sexos', authenticateToken, getSexos);
+router.get('/colores-piel', authenticateToken, getColoresPiel);
+
+// Rutas protegidas - Ocupaciones (CRUD)
+router.get('/ocupaciones', authenticateToken, getOcupaciones);
+router.post('/ocupaciones', authenticateToken, createOcupacion);
+router.put('/ocupaciones/:id', authenticateToken, updateOcupacion);
+router.delete('/ocupaciones/:id', authenticateToken, deleteOcupacion);
+
+// Rutas protegidas - Áreas Geográficas (CRUD)
 router.get('/areas-geograficas', authenticateToken, getAreasGeograficas);
 router.post('/areas-geograficas', authenticateToken, createAreaGeografica);
+router.put('/areas-geograficas/:id', authenticateToken, updateAreaGeografica);
+router.delete('/areas-geograficas/:id', authenticateToken, deleteAreaGeografica);
 
 module.exports = router;

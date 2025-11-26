@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { catalogosAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { FiSave, FiX } from 'react-icons/fi';
+import { FiSave, FiX, FiPlus } from 'react-icons/fi';
 
-const PatientForm = ({ patient, onSubmit, onCancel }) => {
+const PatientForm = ({ patient, onSubmit, onCancel, onRefreshCatalogos }) => {
   const [formData, setFormData] = useState({
     numero_historia_clinica: '',
     nombre_apellidos: '',
@@ -14,6 +14,7 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
     id_nivel_escolar: '',
     id_ocupacion: '',
     id_grupo_dispensarial: '',
+    id_color_piel: '',
     problemas_salud: '',
     observaciones: ''
   });
@@ -23,10 +24,15 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
     niveles: [],
     ocupaciones: [],
     grupos: [],
-    areas: []
+    areas: [],
+    coloresPiel: []
   });
 
   const [loading, setLoading] = useState(false);
+  const [showNewArea, setShowNewArea] = useState(false);
+  const [showNewOcupacion, setShowNewOcupacion] = useState(false);
+  const [newAreaName, setNewAreaName] = useState('');
+  const [newOcupacionName, setNewOcupacionName] = useState('');
 
   useEffect(() => {
     loadCatalogos();
@@ -41,6 +47,7 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
         id_nivel_escolar: patient.id_nivel_escolar || '',
         id_ocupacion: patient.id_ocupacion || '',
         id_grupo_dispensarial: patient.id_grupo_dispensarial || '',
+        id_color_piel: patient.id_color_piel || '',
         problemas_salud: patient.problemas_salud || '',
         observaciones: patient.observaciones || ''
       });
@@ -49,12 +56,13 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
 
   const loadCatalogos = async () => {
     try {
-      const [sexos, niveles, ocupaciones, grupos, areas] = await Promise.all([
+      const [sexos, niveles, ocupaciones, grupos, areas, coloresPiel] = await Promise.all([
         catalogosAPI.getSexos(),
         catalogosAPI.getNivelesEscolares(),
         catalogosAPI.getOcupaciones(),
         catalogosAPI.getGruposDispensariales(),
-        catalogosAPI.getAreasGeograficas()
+        catalogosAPI.getAreasGeograficas(),
+        catalogosAPI.getColoresPiel()
       ]);
 
       setCatalogos({
@@ -62,7 +70,8 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
         niveles: niveles.data.data,
         ocupaciones: ocupaciones.data.data,
         grupos: grupos.data.data,
-        areas: areas.data.data
+        areas: areas.data.data,
+        coloresPiel: coloresPiel.data.data
       });
     } catch (error) {
       toast.error('Error cargando catálogos');
@@ -90,6 +99,44 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
       await onSubmit(formData);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddArea = async () => {
+    if (!newAreaName.trim()) {
+      toast.error('Ingrese el nombre del área');
+      return;
+    }
+
+    try {
+      const response = await catalogosAPI.createAreaGeografica({ nombre: newAreaName });
+      toast.success('Área geográfica creada');
+      setNewAreaName('');
+      setShowNewArea(false);
+      await loadCatalogos();
+      // Seleccionar el área recién creada
+      setFormData(prev => ({ ...prev, id_area_geografica: response.data.data.id_area }));
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error creando área');
+    }
+  };
+
+  const handleAddOcupacion = async () => {
+    if (!newOcupacionName.trim()) {
+      toast.error('Ingrese el nombre de la ocupación');
+      return;
+    }
+
+    try {
+      const response = await catalogosAPI.createOcupacion({ descripcion: newOcupacionName });
+      toast.success('Ocupación creada');
+      setNewOcupacionName('');
+      setShowNewOcupacion(false);
+      await loadCatalogos();
+      // Seleccionar la ocupación recién creada
+      setFormData(prev => ({ ...prev, id_ocupacion: response.data.data.id_ocupacion }));
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error creando ocupación');
     }
   };
 
@@ -176,6 +223,25 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
+              Color de Piel
+            </label>
+            <select
+              name="id_color_piel"
+              value={formData.id_color_piel}
+              onChange={handleChange}
+              className="input-field"
+            >
+              <option value="">Seleccionar...</option>
+              {catalogos.coloresPiel.map(c => (
+                <option key={c.id_color} value={c.id_color}>
+                  {c.descripcion}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Nivel Escolar
             </label>
             <select
@@ -192,28 +258,57 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
               ))}
             </select>
           </div>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Ocupación con opción de agregar */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Ocupación
             </label>
-            <select
-              name="id_ocupacion"
-              value={formData.id_ocupacion}
-              onChange={handleChange}
-              className="input-field"
-            >
-              <option value="">Seleccionar...</option>
-              {catalogos.ocupaciones.map(o => (
-                <option key={o.id_ocupacion} value={o.id_ocupacion}>
-                  {o.descripcion}
-                </option>
-              ))}
-            </select>
+            <div className="flex gap-2">
+              <select
+                name="id_ocupacion"
+                value={formData.id_ocupacion}
+                onChange={handleChange}
+                className="input-field flex-1"
+              >
+                <option value="">Seleccionar...</option>
+                {catalogos.ocupaciones.map(o => (
+                  <option key={o.id_ocupacion} value={o.id_ocupacion}>
+                    {o.descripcion}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setShowNewOcupacion(!showNewOcupacion)}
+                className="px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition"
+                title="Agregar nueva ocupación"
+              >
+                <FiPlus className="h-5 w-5" />
+              </button>
+            </div>
+            {showNewOcupacion && (
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="text"
+                  value={newOcupacionName}
+                  onChange={(e) => setNewOcupacionName(e.target.value)}
+                  placeholder="Nueva ocupación..."
+                  className="input-field flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddOcupacion}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  Agregar
+                </button>
+              </div>
+            )}
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Grupo Dispensarial
@@ -232,16 +327,19 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
               ))}
             </select>
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Área Geográfica
-            </label>
+        {/* Área Geográfica con opción de agregar */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Área Geográfica
+          </label>
+          <div className="flex gap-2">
             <select
               name="id_area_geografica"
               value={formData.id_area_geografica}
               onChange={handleChange}
-              className="input-field"
+              className="input-field flex-1"
             >
               <option value="">Seleccionar...</option>
               {catalogos.areas.map(a => (
@@ -250,7 +348,33 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
                 </option>
               ))}
             </select>
+            <button
+              type="button"
+              onClick={() => setShowNewArea(!showNewArea)}
+              className="px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition"
+              title="Agregar nueva área geográfica"
+            >
+              <FiPlus className="h-5 w-5" />
+            </button>
           </div>
+          {showNewArea && (
+            <div className="mt-2 flex gap-2">
+              <input
+                type="text"
+                value={newAreaName}
+                onChange={(e) => setNewAreaName(e.target.value)}
+                placeholder="Nueva área geográfica..."
+                className="input-field flex-1"
+              />
+              <button
+                type="button"
+                onClick={handleAddArea}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                Agregar
+              </button>
+            </div>
+          )}
         </div>
 
         <div>

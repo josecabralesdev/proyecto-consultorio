@@ -4,8 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import Navbar from './Navbar';
 import PatientList from './PatientList';
 import PatientForm from './PatientForm';
+import CatalogManager from './CatalogManager';
 import toast from 'react-hot-toast';
-import { FiPlus, FiUsers, FiUserPlus, FiActivity, FiX } from 'react-icons/fi';
+import { FiPlus, FiUsers, FiUserPlus, FiActivity, FiX, FiSettings } from 'react-icons/fi';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [viewPatient, setViewPatient] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showCatalogManager, setShowCatalogManager] = useState(false);
 
   useEffect(() => {
     loadPatients();
@@ -160,15 +162,22 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Action Button */}
+        {/* Action Buttons */}
         {!showForm && (
-          <div className="mb-6">
+          <div className="mb-6 flex flex-wrap gap-3">
             <button
               onClick={() => setShowForm(true)}
               className="btn-primary flex items-center space-x-2"
             >
               <FiPlus className="h-5 w-5" />
               <span>Nuevo Paciente</span>
+            </button>
+            <button
+              onClick={() => setShowCatalogManager(true)}
+              className="btn-secondary flex items-center space-x-2"
+            >
+              <FiSettings className="h-5 w-5" />
+              <span>Gestionar Catálogos</span>
             </button>
           </div>
         )}
@@ -223,6 +232,10 @@ const Dashboard = () => {
                     <p className="font-medium">{viewPatient.sexo_descripcion || 'N/A'}</p>
                   </div>
                   <div>
+                    <p className="text-sm text-gray-500">Color de Piel</p>
+                    <p className="font-medium">{viewPatient.color_piel_descripcion || 'N/A'}</p>
+                  </div>
+                  <div>
                     <p className="text-sm text-gray-500">Nivel Escolar</p>
                     <p className="font-medium">{viewPatient.nivel_escolar || 'N/A'}</p>
                   </div>
@@ -237,6 +250,10 @@ const Dashboard = () => {
                   <div>
                     <p className="text-sm text-gray-500">Área Geográfica</p>
                     <p className="font-medium">{viewPatient.area_geografica || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Dirección</p>
+                    <p className="font-medium">{viewPatient.direccion || 'N/A'}</p>
                   </div>
                 </div>
 
@@ -260,6 +277,12 @@ const Dashboard = () => {
 
                 <div className="mt-6 flex justify-end space-x-3">
                   <button
+                    onClick={() => setViewPatient(null)}
+                    className="btn-secondary"
+                  >
+                    Cerrar
+                  </button>
+                  <button
                     onClick={() => {
                       setViewPatient(null);
                       handleEdit(viewPatient);
@@ -272,6 +295,11 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Catalog Manager Modal */}
+        {showCatalogManager && (
+          <CatalogManager onClose={() => setShowCatalogManager(false)} />
         )}
       </main>
     </div>

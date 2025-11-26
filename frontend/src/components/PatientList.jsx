@@ -46,6 +46,9 @@ const PatientList = ({ patients, onEdit, onDelete, onView, searchTerm, onSearchC
                   Sexo
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Piel
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Grupo
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -89,6 +92,11 @@ const PatientList = ({ patients, onEdit, onDelete, onView, searchTerm, onSearchC
                           : 'bg-gray-100 text-gray-800'
                       }`}>
                       {patient.sexo_descripcion || patient.sexo || 'N/E'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                      {patient.color_piel_descripcion || 'N/A'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

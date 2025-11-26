@@ -9,13 +9,15 @@ const getPacientes = async (req, res) => {
                     o.descripcion as ocupacion,
                     gd.descripcion as grupo_dispensarial,
                     ag.nombre as area_geografica,
-                    s.descripcion as sexo_descripcion
+                    s.descripcion as sexo_descripcion,
+                    cp.descripcion as color_piel_descripcion
              FROM PACIENTES p
              LEFT JOIN NIVELES_ESCOLARES ne ON p.id_nivel_escolar = ne.id_nivel
              LEFT JOIN OCUPACIONES o ON p.id_ocupacion = o.id_ocupacion
              LEFT JOIN GRUPOS_DISPENSARIALES gd ON p.id_grupo_dispensarial = gd.id_grupo
              LEFT JOIN AREAS_GEOGRAFICAS ag ON p.id_area_geografica = ag.id_area
              LEFT JOIN SEXOS s ON p.sexo = s.codigo
+             LEFT JOIN COLORES_PIEL cp ON p.id_color_piel = cp.id_color
              WHERE p.id_consultorio = $1
              ORDER BY p.nombre_apellidos`,
       [req.user.id_consultorio]
@@ -46,12 +48,16 @@ const getPaciente = async (req, res) => {
                     ne.descripcion as nivel_escolar,
                     o.descripcion as ocupacion,
                     gd.descripcion as grupo_dispensarial,
-                    ag.nombre as area_geografica
+                    ag.nombre as area_geografica,
+                    s.descripcion as sexo_descripcion,
+                    cp.descripcion as color_piel_descripcion
              FROM PACIENTES p
              LEFT JOIN NIVELES_ESCOLARES ne ON p.id_nivel_escolar = ne.id_nivel
              LEFT JOIN OCUPACIONES o ON p.id_ocupacion = o.id_ocupacion
              LEFT JOIN GRUPOS_DISPENSARIALES gd ON p.id_grupo_dispensarial = gd.id_grupo
              LEFT JOIN AREAS_GEOGRAFICAS ag ON p.id_area_geografica = ag.id_area
+             LEFT JOIN SEXOS s ON p.sexo = s.codigo
+             LEFT JOIN COLORES_PIEL cp ON p.id_color_piel = cp.id_color
              WHERE p.id_paciente = $1 AND p.id_consultorio = $2`,
       [id, req.user.id_consultorio]
     );
@@ -88,6 +94,7 @@ const createPaciente = async (req, res) => {
     id_nivel_escolar,
     id_ocupacion,
     id_grupo_dispensarial,
+    id_color_piel,
     problemas_salud,
     observaciones
   } = req.body;
@@ -97,8 +104,8 @@ const createPaciente = async (req, res) => {
       `INSERT INTO PACIENTES 
              (numero_historia_clinica, nombre_apellidos, carnet_identidad, sexo, 
               direccion, id_area_geografica, id_nivel_escolar, id_ocupacion, 
-              id_grupo_dispensarial, problemas_salud, observaciones, id_consultorio)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+              id_grupo_dispensarial, id_color_piel, problemas_salud, observaciones, id_consultorio)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
              RETURNING *`,
       [
         numero_historia_clinica,
@@ -110,6 +117,7 @@ const createPaciente = async (req, res) => {
         id_nivel_escolar || null,
         id_ocupacion || null,
         id_grupo_dispensarial || null,
+        id_color_piel || null,
         problemas_salud || null,
         observaciones || null,
         req.user.id_consultorio
@@ -124,7 +132,7 @@ const createPaciente = async (req, res) => {
   } catch (error) {
     console.error('Error creando paciente:', error);
 
-    if (error.code === '23505') { // Unique violation
+    if (error.code === '23505') {
       return res.status(400).json({
         success: false,
         message: 'Ya existe un paciente con ese carnet de identidad'
@@ -152,6 +160,7 @@ const updatePaciente = async (req, res) => {
     id_nivel_escolar,
     id_ocupacion,
     id_grupo_dispensarial,
+    id_color_piel,
     problemas_salud,
     observaciones
   } = req.body;
@@ -181,9 +190,10 @@ const updatePaciente = async (req, res) => {
                 id_nivel_escolar = $7,
                 id_ocupacion = $8,
                 id_grupo_dispensarial = $9,
-                problemas_salud = $10,
-                observaciones = $11
-             WHERE id_paciente = $12 AND id_consultorio = $13
+                id_color_piel = $10,
+                problemas_salud = $11,
+                observaciones = $12
+             WHERE id_paciente = $13 AND id_consultorio = $14
              RETURNING *`,
       [
         numero_historia_clinica,
@@ -195,6 +205,7 @@ const updatePaciente = async (req, res) => {
         id_nivel_escolar || null,
         id_ocupacion || null,
         id_grupo_dispensarial || null,
+        id_color_piel || null,
         problemas_salud || null,
         observaciones || null,
         id,
@@ -256,11 +267,13 @@ const searchPacientes = async (req, res) => {
       `SELECT p.*, 
                     ne.descripcion as nivel_escolar,
                     o.descripcion as ocupacion,
-                    gd.descripcion as grupo_dispensarial
+                    gd.descripcion as grupo_dispensarial,
+                    cp.descripcion as color_piel_descripcion
              FROM PACIENTES p
              LEFT JOIN NIVELES_ESCOLARES ne ON p.id_nivel_escolar = ne.id_nivel
              LEFT JOIN OCUPACIONES o ON p.id_ocupacion = o.id_ocupacion
              LEFT JOIN GRUPOS_DISPENSARIALES gd ON p.id_grupo_dispensarial = gd.id_grupo
+             LEFT JOIN COLORES_PIEL cp ON p.id_color_piel = cp.id_color
              WHERE p.id_consultorio = $1 
              AND (
                  LOWER(p.nombre_apellidos) LIKE LOWER($2) OR

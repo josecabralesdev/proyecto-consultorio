@@ -55,17 +55,30 @@ export const pacientesAPI = {
 
 // Catálogos API
 export const catalogosAPI = {
+  // Ubicación
   getProvincias: () => api.get('/catalogos/provincias'),
   getMunicipios: (provinciaId) => api.get(`/catalogos/municipios/${provinciaId}`),
   getPoliclinicos: (municipioId) => api.get(`/catalogos/policlinicos/${municipioId}`),
   getConsultorios: (policlinicoId) => api.get(`/catalogos/consultorios/${policlinicoId}`),
   getAllConsultorios: () => api.get('/catalogos/consultorios'),
+
+  // Catálogos de solo lectura
   getNivelesEscolares: () => api.get('/catalogos/niveles-escolares'),
-  getOcupaciones: () => api.get('/catalogos/ocupaciones'),
   getGruposDispensariales: () => api.get('/catalogos/grupos-dispensariales'),
   getSexos: () => api.get('/catalogos/sexos'),
+  getColoresPiel: () => api.get('/catalogos/colores-piel'),
+
+  // Ocupaciones (CRUD)
+  getOcupaciones: () => api.get('/catalogos/ocupaciones'),
+  createOcupacion: (data) => api.post('/catalogos/ocupaciones', data),
+  updateOcupacion: (id, data) => api.put(`/catalogos/ocupaciones/${id}`, data),
+  deleteOcupacion: (id) => api.delete(`/catalogos/ocupaciones/${id}`),
+
+  // Áreas Geográficas (CRUD)
   getAreasGeograficas: () => api.get('/catalogos/areas-geograficas'),
-  createAreaGeografica: (data) => api.post('/catalogos/areas-geograficas', data)
+  createAreaGeografica: (data) => api.post('/catalogos/areas-geograficas', data),
+  updateAreaGeografica: (id, data) => api.put(`/catalogos/areas-geograficas/${id}`, data),
+  deleteAreaGeografica: (id) => api.delete(`/catalogos/areas-geograficas/${id}`)
 };
 
 export default api;
