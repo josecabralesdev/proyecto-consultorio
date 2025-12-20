@@ -177,14 +177,14 @@ cd consultorio-medico
 
 ```bash
 cd backend
-npm install
+pnpm install
 ```
 
 3. Instalar dependencias del Frontend
 
 ```bash
 cd ../frontend
-npm install
+pnpm install
 ```
 
 ---
@@ -418,7 +418,7 @@ Salida esperada:
 
 ```bash
 cd backend
-npm run dev
+pnpm run dev
 ```
 
 El servidor se iniciará en `http://localhost:5000`
@@ -429,7 +429,7 @@ En otra terminal:
 
 ```bash
 cd frontend
-npm run dev
+pnpm run dev
 ```
 
 La aplicación se abrirá en `http://localhost:5173`
