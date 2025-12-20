@@ -9,14 +9,16 @@ const getPacientes = async (req, res) => {
                     o.descripcion as ocupacion,
                     gd.descripcion as grupo_dispensarial,
                     ag.nombre as area_geografica,
+                    s.codigo as sexo_codigo,
                     s.descripcion as sexo_descripcion,
+                    cp.codigo as color_piel_codigo,
                     cp.descripcion as color_piel_descripcion
              FROM PACIENTES p
              LEFT JOIN NIVELES_ESCOLARES ne ON p.id_nivel_escolar = ne.id_nivel
              LEFT JOIN OCUPACIONES o ON p.id_ocupacion = o.id_ocupacion
              LEFT JOIN GRUPOS_DISPENSARIALES gd ON p.id_grupo_dispensarial = gd.id_grupo
              LEFT JOIN AREAS_GEOGRAFICAS ag ON p.id_area_geografica = ag.id_area
-             LEFT JOIN SEXOS s ON p.sexo = s.codigo
+             LEFT JOIN SEXOS s ON p.id_sexo = s.id_sexo
              LEFT JOIN COLORES_PIEL cp ON p.id_color_piel = cp.id_color
              WHERE p.id_consultorio = $1
              ORDER BY p.nombre_apellidos`,
@@ -49,14 +51,16 @@ const getPaciente = async (req, res) => {
                     o.descripcion as ocupacion,
                     gd.descripcion as grupo_dispensarial,
                     ag.nombre as area_geografica,
+                    s.codigo as sexo_codigo,
                     s.descripcion as sexo_descripcion,
+                    cp.codigo as color_piel_codigo,
                     cp.descripcion as color_piel_descripcion
              FROM PACIENTES p
              LEFT JOIN NIVELES_ESCOLARES ne ON p.id_nivel_escolar = ne.id_nivel
              LEFT JOIN OCUPACIONES o ON p.id_ocupacion = o.id_ocupacion
              LEFT JOIN GRUPOS_DISPENSARIALES gd ON p.id_grupo_dispensarial = gd.id_grupo
              LEFT JOIN AREAS_GEOGRAFICAS ag ON p.id_area_geografica = ag.id_area
-             LEFT JOIN SEXOS s ON p.sexo = s.codigo
+             LEFT JOIN SEXOS s ON p.id_sexo = s.id_sexo
              LEFT JOIN COLORES_PIEL cp ON p.id_color_piel = cp.id_color
              WHERE p.id_paciente = $1 AND p.id_consultorio = $2`,
       [id, req.user.id_consultorio]
@@ -88,7 +92,7 @@ const createPaciente = async (req, res) => {
     numero_historia_clinica,
     nombre_apellidos,
     carnet_identidad,
-    sexo,
+    id_sexo,
     direccion,
     id_area_geografica,
     id_nivel_escolar,
@@ -102,7 +106,7 @@ const createPaciente = async (req, res) => {
   try {
     const result = await pool.query(
       `INSERT INTO PACIENTES 
-             (numero_historia_clinica, nombre_apellidos, carnet_identidad, sexo, 
+             (numero_historia_clinica, nombre_apellidos, carnet_identidad, id_sexo, 
               direccion, id_area_geografica, id_nivel_escolar, id_ocupacion, 
               id_grupo_dispensarial, id_color_piel, problemas_salud, observaciones, id_consultorio)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
@@ -111,7 +115,7 @@ const createPaciente = async (req, res) => {
         numero_historia_clinica,
         nombre_apellidos,
         carnet_identidad || null,
-        sexo || null,
+        id_sexo || null,
         direccion || null,
         id_area_geografica || null,
         id_nivel_escolar || null,
@@ -154,7 +158,7 @@ const updatePaciente = async (req, res) => {
     numero_historia_clinica,
     nombre_apellidos,
     carnet_identidad,
-    sexo,
+    id_sexo,
     direccion,
     id_area_geografica,
     id_nivel_escolar,
@@ -184,7 +188,7 @@ const updatePaciente = async (req, res) => {
                 numero_historia_clinica = $1,
                 nombre_apellidos = $2,
                 carnet_identidad = $3,
-                sexo = $4,
+                id_sexo = $4,
                 direccion = $5,
                 id_area_geografica = $6,
                 id_nivel_escolar = $7,
@@ -199,7 +203,7 @@ const updatePaciente = async (req, res) => {
         numero_historia_clinica,
         nombre_apellidos,
         carnet_identidad || null,
-        sexo || null,
+        id_sexo || null,
         direccion || null,
         id_area_geografica || null,
         id_nivel_escolar || null,
@@ -268,11 +272,14 @@ const searchPacientes = async (req, res) => {
                     ne.descripcion as nivel_escolar,
                     o.descripcion as ocupacion,
                     gd.descripcion as grupo_dispensarial,
+                    s.codigo as sexo_codigo,
+                    s.descripcion as sexo_descripcion,
                     cp.descripcion as color_piel_descripcion
              FROM PACIENTES p
              LEFT JOIN NIVELES_ESCOLARES ne ON p.id_nivel_escolar = ne.id_nivel
              LEFT JOIN OCUPACIONES o ON p.id_ocupacion = o.id_ocupacion
              LEFT JOIN GRUPOS_DISPENSARIALES gd ON p.id_grupo_dispensarial = gd.id_grupo
+             LEFT JOIN SEXOS s ON p.id_sexo = s.id_sexo
              LEFT JOIN COLORES_PIEL cp ON p.id_color_piel = cp.id_color
              WHERE p.id_consultorio = $1 
              AND (

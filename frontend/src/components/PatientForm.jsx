@@ -3,12 +3,12 @@ import { catalogosAPI } from '../services/api';
 import toast from 'react-hot-toast';
 import { FiSave, FiX, FiPlus } from 'react-icons/fi';
 
-const PatientForm = ({ patient, onSubmit, onCancel, onRefreshCatalogos }) => {
+const PatientForm = ({ patient, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     numero_historia_clinica: '',
     nombre_apellidos: '',
     carnet_identidad: '',
-    sexo: '',
+    id_sexo: '',
     direccion: '',
     id_area_geografica: '',
     id_nivel_escolar: '',
@@ -41,7 +41,7 @@ const PatientForm = ({ patient, onSubmit, onCancel, onRefreshCatalogos }) => {
         numero_historia_clinica: patient.numero_historia_clinica || '',
         nombre_apellidos: patient.nombre_apellidos || '',
         carnet_identidad: patient.carnet_identidad || '',
-        sexo: patient.sexo || '',
+        id_sexo: patient.id_sexo || '',
         direccion: patient.direccion || '',
         id_area_geografica: patient.id_area_geografica || '',
         id_nivel_escolar: patient.id_nivel_escolar || '',
@@ -114,7 +114,6 @@ const PatientForm = ({ patient, onSubmit, onCancel, onRefreshCatalogos }) => {
       setNewAreaName('');
       setShowNewArea(false);
       await loadCatalogos();
-      // Seleccionar el área recién creada
       setFormData(prev => ({ ...prev, id_area_geografica: response.data.data.id_area }));
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error creando área');
@@ -133,7 +132,6 @@ const PatientForm = ({ patient, onSubmit, onCancel, onRefreshCatalogos }) => {
       setNewOcupacionName('');
       setShowNewOcupacion(false);
       await loadCatalogos();
-      // Seleccionar la ocupación recién creada
       setFormData(prev => ({ ...prev, id_ocupacion: response.data.data.id_ocupacion }));
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error creando ocupación');
@@ -207,14 +205,14 @@ const PatientForm = ({ patient, onSubmit, onCancel, onRefreshCatalogos }) => {
               Sexo
             </label>
             <select
-              name="sexo"
-              value={formData.sexo}
+              name="id_sexo"
+              value={formData.id_sexo}
               onChange={handleChange}
               className="input-field"
             >
               <option value="">Seleccionar...</option>
               {catalogos.sexos.map(s => (
-                <option key={s.codigo} value={s.codigo}>
+                <option key={s.id_sexo} value={s.id_sexo}>
                   {s.descripcion}
                 </option>
               ))}

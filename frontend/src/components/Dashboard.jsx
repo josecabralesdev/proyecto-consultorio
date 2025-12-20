@@ -92,7 +92,8 @@ const Dashboard = () => {
   const stats = useMemo(() => {
     const total = patients.length;
     const porSexo = patients.reduce((acc, p) => {
-      acc[p.sexo || 'N'] = (acc[p.sexo || 'N'] || 0) + 1;
+      const codigo = p.sexo_codigo || 'N';
+      acc[codigo] = (acc[codigo] || 0) + 1;
       return acc;
     }, {});
     const porGrupo = patients.reduce((acc, p) => {

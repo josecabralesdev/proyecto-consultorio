@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS PACIENTES (
     numero_historia_clinica INTEGER NOT NULL,
     nombre_apellidos VARCHAR(255) NOT NULL,
     carnet_identidad VARCHAR(20) UNIQUE,
-    sexo CHAR(1),
+    id_sexo INTEGER REFERENCES SEXOS (id_sexo) ON DELETE SET NULL,
     direccion INTEGER,
     id_area_geografica INTEGER REFERENCES AREAS_GEOGRAFICAS (id_area),
     id_nivel_escolar INTEGER REFERENCES NIVELES_ESCOLARES (id_nivel),

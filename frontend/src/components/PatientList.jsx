@@ -85,13 +85,13 @@ const PatientList = ({ patients, onEdit, onDelete, onView, searchTerm, onSearchC
                     {patient.carnet_identidad || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${patient.sexo === 'M'
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${patient.sexo_codigo === 'M'
                         ? 'bg-blue-100 text-blue-800'
-                        : patient.sexo === 'F'
+                        : patient.sexo_codigo === 'F'
                           ? 'bg-pink-100 text-pink-800'
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                      {patient.sexo_descripcion || patient.sexo || 'N/E'}
+                      {patient.sexo_descripcion || 'N/E'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
