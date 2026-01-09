@@ -27,7 +27,13 @@ app.use('/api/admin', adminRoutes);
 
 // Ruta de prueba
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Servidor funcionando correctamente' });
+  const isSupabase = process.env.DB_HOST?.includes('supabase');
+  res.json({
+    status: 'OK',
+    message: 'Servidor funcionando correctamente',
+    database: isSupabase ? 'Supabase' : 'PostgreSQL Local',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Manejo de errores
@@ -48,13 +54,15 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+const isSupabase = process.env.DB_HOST?.includes('supabase');
 
 app.listen(PORT, () => {
   console.log(`
-    ╔═══════════════════════════════════════════╗
-    ║   🏥 Servidor de Consultorios Médicos     ║
-    ║   📡 Puerto: ${PORT}                          ║
-    ║   🚀 Estado: Activo                       ║
-    ╚═══════════════════════════════════════════╝
+    ╔═══════════════════════════════════════════════╗
+    ║   🏥 Servidor de Consultorios Médicos         ║
+    ║   📡 Puerto: ${PORT}                              ║
+    ║   💾 BD: ${isSupabase ? 'Supabase Cloud' : 'PostgreSQL Local'}              ║
+    ║   🚀 Estado: Activo                           ║
+    ╚═══════════════════════════════════════════════╝
     `);
 });
