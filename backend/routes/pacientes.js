@@ -6,7 +6,8 @@ const {
   createPaciente,
   updatePaciente,
   deletePaciente,
-  searchPacientes
+  searchPacientes,
+  calculateAgeFromCI
 } = require('../controllers/pacientesController');
 const authenticateToken = require('../middleware/auth');
 
@@ -15,6 +16,7 @@ router.use(authenticateToken);
 
 router.get('/', getPacientes);
 router.get('/search', searchPacientes);
+router.post('/calculate-age', calculateAgeFromCI);
 router.get('/:id', getPaciente);
 router.post('/', createPaciente);
 router.put('/:id', updatePaciente);

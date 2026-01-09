@@ -43,10 +43,10 @@ const PatientList = ({ patients, onEdit, onDelete, onView, searchTerm, onSearchC
                   Carnet
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Sexo
+                  Edad
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Piel
+                  Sexo
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Grupo
@@ -85,6 +85,15 @@ const PatientList = ({ patients, onEdit, onDelete, onView, searchTerm, onSearchC
                     {patient.carnet_identidad || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
+                    {patient.edad !== null ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        {patient.edad} años
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-400">N/A</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${patient.sexo_codigo === 'M'
                         ? 'bg-blue-100 text-blue-800'
                         : patient.sexo_codigo === 'F'
@@ -92,11 +101,6 @@ const PatientList = ({ patients, onEdit, onDelete, onView, searchTerm, onSearchC
                           : 'bg-gray-100 text-gray-800'
                       }`}>
                       {patient.sexo_descripcion || 'N/E'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                      {patient.color_piel_descripcion || 'N/A'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

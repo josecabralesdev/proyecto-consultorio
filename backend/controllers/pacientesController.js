@@ -1,4 +1,16 @@
 const pool = require('../config/db');
+const { getBirthInfoFromCI } = require('../utils/ageCalculator');
+
+// Función auxiliar para agregar información de edad a los pacientes
+const addAgeInfo = (patients) => {
+  return patients.map(patient => {
+    const birthInfo = getBirthInfoFromCI(patient.carnet_identidad);
+    return {
+      ...patient,
+      ...birthInfo
+    };
+  });
+};
 
 // Obtener todos los pacientes del consultorio del médico
 const getPacientes = async (req, res) => {
@@ -25,10 +37,13 @@ const getPacientes = async (req, res) => {
       [req.user.id_consultorio]
     );
 
+    // Agregar información de edad a cada paciente
+    const patientsWithAge = addAgeInfo(result.rows);
+
     res.json({
       success: true,
-      data: result.rows,
-      count: result.rows.length
+      data: patientsWithAge,
+      count: patientsWithAge.length
     });
   } catch (error) {
     console.error('Error obteniendo pacientes:', error);
@@ -73,9 +88,12 @@ const getPaciente = async (req, res) => {
       });
     }
 
+    // Agregar información de edad
+    const patientWithAge = addAgeInfo(result.rows)[0];
+
     res.json({
       success: true,
-      data: result.rows[0]
+      data: patientWithAge
     });
   } catch (error) {
     res.status(500).json({
@@ -128,10 +146,13 @@ const createPaciente = async (req, res) => {
       ]
     );
 
+    // Agregar información de edad al paciente creado
+    const patientWithAge = addAgeInfo(result.rows)[0];
+
     res.status(201).json({
       success: true,
       message: 'Paciente creado exitosamente',
-      data: result.rows[0]
+      data: patientWithAge
     });
   } catch (error) {
     console.error('Error creando paciente:', error);
@@ -170,7 +191,6 @@ const updatePaciente = async (req, res) => {
   } = req.body;
 
   try {
-    // Verificar que el paciente pertenece al consultorio del médico
     const check = await pool.query(
       'SELECT * FROM PACIENTES WHERE id_paciente = $1 AND id_consultorio = $2',
       [id, req.user.id_consultorio]
@@ -217,10 +237,13 @@ const updatePaciente = async (req, res) => {
       ]
     );
 
+    // Agregar información de edad
+    const patientWithAge = addAgeInfo(result.rows)[0];
+
     res.json({
       success: true,
       message: 'Paciente actualizado exitosamente',
-      data: result.rows[0]
+      data: patientWithAge
     });
   } catch (error) {
     console.error('Error actualizando paciente:', error);
@@ -291,10 +314,13 @@ const searchPacientes = async (req, res) => {
       [req.user.id_consultorio, `%${q}%`]
     );
 
+    // Agregar información de edad
+    const patientsWithAge = addAgeInfo(result.rows);
+
     res.json({
       success: true,
-      data: result.rows,
-      count: result.rows.length
+      data: patientsWithAge,
+      count: patientsWithAge.length
     });
   } catch (error) {
     res.status(500).json({
@@ -305,11 +331,24 @@ const searchPacientes = async (req, res) => {
   }
 };
 
+// Endpoint para calcular edad desde CI (útil para el frontend)
+const calculateAgeFromCI = async (req, res) => {
+  const { carnet_identidad } = req.body;
+
+  const birthInfo = getBirthInfoFromCI(carnet_identidad);
+
+  res.json({
+    success: true,
+    data: birthInfo
+  });
+};
+
 module.exports = {
   getPacientes,
   getPaciente,
   createPaciente,
   updatePaciente,
   deletePaciente,
-  searchPacientes
+  searchPacientes,
+  calculateAgeFromCI
 };

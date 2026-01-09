@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { catalogosAPI } from '../services/api';
+import { getBirthInfoFromCI, formatBirthDate } from '../utils/ageCalculator';
 import toast from 'react-hot-toast';
-import { FiSave, FiX, FiPlus } from 'react-icons/fi';
+import { FiSave, FiX, FiPlus, FiCalendar } from 'react-icons/fi';
 
 const PatientForm = ({ patient, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -34,6 +35,13 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
   const [newAreaName, setNewAreaName] = useState('');
   const [newOcupacionName, setNewOcupacionName] = useState('');
 
+  // Estado para la información de edad calculada
+  const [birthInfo, setBirthInfo] = useState({
+    fechaNacimiento: null,
+    edad: null,
+    edadTexto: null
+  });
+
   useEffect(() => {
     loadCatalogos();
     if (patient) {
@@ -51,6 +59,11 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
         problemas_salud: patient.problemas_salud || '',
         observaciones: patient.observaciones || ''
       });
+      // Calcular edad inicial si hay CI
+      if (patient.carnet_identidad) {
+        const info = getBirthInfoFromCI(patient.carnet_identidad);
+        setBirthInfo(info);
+      }
     }
   }, [patient]);
 
@@ -84,6 +97,12 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
       ...prev,
       [name]: value
     }));
+
+    // Si cambia el carnet de identidad, recalcular la edad
+    if (name === 'carnet_identidad') {
+      const info = getBirthInfoFromCI(value);
+      setBirthInfo(info);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -91,6 +110,12 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
 
     if (!formData.numero_historia_clinica || !formData.nombre_apellidos) {
       toast.error('Número de HC y Nombre son requeridos');
+      return;
+    }
+
+    // Validar formato del CI si se proporciona
+    if (formData.carnet_identidad && formData.carnet_identidad.length !== 11) {
+      toast.error('El carnet de identidad debe tener 11 dígitos');
       return;
     }
 
@@ -180,8 +205,25 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
               onChange={handleChange}
               className="input-field"
               maxLength="11"
-              placeholder="Ej: 85010112345"
+              placeholder="Ej: 03051578964"
             />
+            {/* Mostrar edad calculada */}
+            {birthInfo.edad !== null && (
+              <div className="mt-2 flex items-center space-x-2 text-sm">
+                <FiCalendar className="text-primary-500" />
+                <span className="text-gray-600">
+                  Fecha de nacimiento: <span className="font-medium">{formatBirthDate(birthInfo.fechaNacimiento)}</span>
+                </span>
+                <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full font-medium">
+                  {birthInfo.edadTexto}
+                </span>
+              </div>
+            )}
+            {formData.carnet_identidad && formData.carnet_identidad.length >= 7 && birthInfo.edad === null && (
+              <p className="mt-1 text-sm text-red-500">
+                Carnet de identidad inválido
+              </p>
+            )}
           </div>
         </div>
 
@@ -259,7 +301,7 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Ocupación con opción de agregar */}
+          {/* Ocupación */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Ocupación
@@ -327,7 +369,7 @@ const PatientForm = ({ patient, onSubmit, onCancel }) => {
           </div>
         </div>
 
-        {/* Área Geográfica con opción de agregar */}
+        {/* Área Geográfica */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Área Geográfica

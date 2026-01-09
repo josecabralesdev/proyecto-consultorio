@@ -229,6 +229,24 @@ const Dashboard = () => {
                     <p className="font-medium">{viewPatient.carnet_identidad || 'N/A'}</p>
                   </div>
                   <div>
+                    <p className="text-sm text-gray-500">Fecha de Nacimiento</p>
+                    <p className="font-medium">
+                      {viewPatient.fecha_nacimiento
+                        ? new Date(viewPatient.fecha_nacimiento).toLocaleDateString('es-ES')
+                        : 'N/A'
+                      }
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Edad</p>
+                    <p className="font-medium">
+                      {viewPatient.edad !== null
+                        ? <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full">{viewPatient.edad} años</span>
+                        : 'N/A'
+                      }
+                    </p>
+                  </div>
+                  <div>
                     <p className="text-sm text-gray-500">Sexo</p>
                     <p className="font-medium">{viewPatient.sexo_descripcion || 'N/A'}</p>
                   </div>
