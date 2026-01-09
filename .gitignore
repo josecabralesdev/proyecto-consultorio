@@ -1,3 +1,5 @@
 .env
 node_modules
 pnpm-lock.yaml
+.kilocode
+.~lock.Manual de implementación - Gestión de pacientes de Consultorios Médicos
